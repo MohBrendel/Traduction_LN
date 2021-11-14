@@ -1,5 +1,6 @@
 from __future__ import division
 import sys
+import time
 from pprint import pprint
 import bs4
 from numpy import*
@@ -18,7 +19,9 @@ titre_text = (f"{translation.text}")
 print(titre_text)
 cond = str(input('Le texte est-il en français ? (o/n): '))
 if cond=='n':
-	sys.exit("Réessayer plus tard")
+	print("Réessayer plus tard")
+	time.sleep(2)
+	sys.exit()
 Origine = []
 traduction = []
 with open('Nom_propre.txt') as Nom:
