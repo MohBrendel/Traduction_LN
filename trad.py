@@ -1,6 +1,6 @@
 from __future__ import division
-from pprint import pprint
 import sys
+from pprint import pprint
 import bs4
 from numpy import*
 from math import*
@@ -12,15 +12,13 @@ from googletrans import Translator
 
 translator = Translator()
 
+#Introduction
 translation = translator.translate('''It's a test, to testify the good working of the module''', dest="fr")
 titre_text = (f"{translation.text}")
 print(titre_text)
 cond = str(input('Le texte est-il en français ? (o/n): '))
-
 if cond=='n':
 	sys.exit("Réessayer plus tard")
-
-
 Origine = []
 traduction = []
 with open('Nom_propre.txt') as Nom:
@@ -29,21 +27,23 @@ with open('Nom_propre.txt') as Nom:
         Origine.append(row[0])
         traduction.append(row[1])
 Nom.close()
-Remplacement = len(Origine)
-
 print('''Donnez l'url du roman (sur BestlightNovel uniquement pour le mmoment): ''')
 url = input('Exemple :https://bestlightnovel.com/novel_888159695/chapter_84 \n')
 dep = input('Donnez le chapitre de départ: ')
-arr = input('Donnez le chapitre de fin (delta max = 60): ')
-
+arr = input('Donnez le chapitre de fin (delta max 60: ')
 url2 = list(url)
 del(url2[51:len(url2)])
 url2 = str(''.join(url2))
+Titre_doc = input('Donnez le titre du document pdf: ')
 
-Titre_doc = input('Donnez le titre du document pdf')
+#Peaufinage
+print("{Courier, Helvetica, Times, Arial}")
+police_ec = input("Quel police d'écriture ? \n")
+Taille_Pol_Tit = input('Taille de la police des titres: ')
+Taille_Pol_norm = input('Taille de la police du texte: ')
 
-url_source_SL3 = "https://bestlightnovel.com/novel_888159695/chapter_"
-url_source_T = "https://bestlightnovel.com/novel_888120245/chapter_"
+#url_source_SL3 = "https://bestlightnovel.com/novel_888159695/chapter_"
+#url_source_T = "https://bestlightnovel.com/novel_888120245/chapter_"
 
 Remplacement = len(Origine)
 pdf = FPDF() 
@@ -97,12 +97,13 @@ for k in arange(eval(dep),eval(arr),1):
 	Vect_nom = str(''.join(Vect_nom))
 	translation = translator.translate(str(Vect_nom), dest="fr")
 	titre_text = (f"{translation.text}")
+	print(titre_text)
 
 	# Ecrit le titre dans le pdf
 	titre_text=titre_text.encode('latin-1', 'ignore').decode('latin-1')
-	pdf.set_font("Arial", 'B', size=16)
-	pdf.multi_cell(0, 6, txt = titre_text+'\n', align = 'C') 
-	pdf.set_font("Arial", size=12)
+	pdf.set_font(police_ec, 'B', size=eval(Taille_Pol_Tit))
+	pdf.multi_cell(0, 6, txt = titre_text+'\n'+'\n', align = 'C') 
+	pdf.set_font(police_ec, size=eval(Taille_Pol_norm))
 
 	# Conserve que le texte et supprime le <br/>
 	deb = Trouver_ligne('Script'+str(k)+'_0.txt','''<div class="vung_doc" id="vung_doc"''')
@@ -128,6 +129,54 @@ for k in arange(eval(dep),eval(arr),1):
 	        if number in Ligne_paragpraphe[0:-1]:
 	            fp.write(line.replace('<p>',''))
 	    fp.close()
+
+	#Tentative d'ajout de saut de ligne
+	with open('Script'+str(k)+'_0.txt', 'r+', encoding='utf-8') as fp:
+		lines = fp.readlines()
+		fp.seek(0)
+		fp.truncate()
+		Concatenation = []
+		for number, line in enumerate(lines):
+			Phrase_sup = list(line)
+			Phrase_verif = list(lines[number-1])
+			for i in range(len(list(line))):
+				#indentation
+				if Phrase_sup[0]==' ':
+					Phrase_sup.insert(0,'   ')
+				#Premier guillemet
+				if Phrase_sup[i]=='“':
+					Phrase_sup[i]='«'
+					Phrase_sup.insert(i,'\n')
+					Phrase_sup.insert(i,'\n')
+				try:
+					if Phrase_sup[i]=='”':
+						Phrase_sup[i]='»'
+						Phrase_sup.insert(i+1,'\n')
+						Phrase_sup.insert(i+1,'\n')
+				except IndexError:
+					pass
+				continue
+				if not size(Phrase_sup)==1:
+					if Phrase_sup[-2]=='”':
+						Phrase_sup.extend('\n')
+			Concatenation.extend(Phrase_sup)
+		# Pour les trop de \n
+		for j in range(len(Concatenation)):
+			try:
+				if Concatenation[j]=='\n':
+					if Concatenation[j+1]=='   ':
+						if Concatenation[j+2]==' ':
+							if Concatenation[j+3]=='\n':
+								if Concatenation[j+4]=='\n':
+									del(Concatenation[j])
+					if Concatenation[j+1]=='\n':
+						if Concatenation[j+2]=='\n':
+							del(Concatenation[j])
+			except IndexError:
+				pass
+			continue
+		fp.write(''.join(Concatenation))
+	fp.close()
 
 	# Le traducteur
 	f = open('Script'+str(k)+'_0.txt','r', encoding='utf-8')
@@ -169,7 +218,5 @@ for k in arange(eval(dep),eval(arr),1):
 
 if os.path.exists("Script0_0.txt"):
 	os.remove("Script0_0.txt")
-else:
-	print("problème de suppression")
 
 pdf.output(str(Titre_doc)+".pdf").encode('latin-1','ignore')
