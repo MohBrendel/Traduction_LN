@@ -1,0 +1,15 @@
+Pour faire fonctionner ce code il faut d'abord installer plusieurs librairies :
+
+python3 -m pip install bs4
+python3 -m pip install fpdf
+python3 -m pip install requests
+python3 -m pip install numpy
+
+/!\ Si vous avez déjà installé googletrans, il faut le désinstaller et installer la nouvelle version:
+
+python3 -m pip uninstall googletrans
+python3 -m pip install googletrans==3.1.0a0
+
+Il y a un autre document 'Nom_propre.txt':
+Celui-ci est un csv qui permet de remplacer des mots, suite de mot (sauf ceux des titres). Il s'organise comme ci-suit (il n'y a pas d'espace après la virgule):
+Hapsatou,Corine
