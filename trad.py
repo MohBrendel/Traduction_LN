@@ -33,7 +33,7 @@ Nom.close()
 print('''Donnez l'url du roman (sur BestlightNovel uniquement pour le mmoment): ''')
 url = input('Exemple :https://bestlightnovel.com/novel_888159695/chapter_84 \n')
 dep = input('Donnez le chapitre de départ: ')
-arr = input('Donnez le chapitre de fin (delta max 60: ')
+arr = input('Donnez le chapitre de fin (delta max 60): ')
 url2 = list(url)
 del(url2[51:len(url2)])
 url2 = str(''.join(url2))
@@ -118,7 +118,7 @@ for k in arange(eval(dep),eval(arr),1):
 	    fp.truncate()
 	    for number, line in enumerate(lines):
 	        if number in range(deb[0],fin[0]-3):
-	            fp.write(line.replace('  ','').replace('<br/>',''))
+	            fp.write(line.replace('  ','').replace('<br/>','').replace('<strong>',''))
 	    fp.close()	
 
 	Ligne_paragpraphe = Trouver_ligne('Script'+str(k)+'_0.txt', '''<p>''')
@@ -139,6 +139,7 @@ for k in arange(eval(dep),eval(arr),1):
 		fp.seek(0)
 		fp.truncate()
 		Concatenation = []
+
 		for number, line in enumerate(lines):
 			Phrase_sup = list(line)
 			Phrase_verif = list(lines[number-1])
@@ -175,6 +176,15 @@ for k in arange(eval(dep),eval(arr),1):
 					if Concatenation[j+1]=='\n':
 						if Concatenation[j+2]=='\n':
 							del(Concatenation[j])
+			except IndexError:
+				pass
+			continue
+		for j in range(len(Concatenation)):
+			#Grosses merdes d'anglais qui ne savent pas écrire
+			try:
+				if Concatenation[j]=='.':
+					if Concatenation[j-1]==' ':
+						del(Concatenation[j-1])
 			except IndexError:
 				pass
 			continue
