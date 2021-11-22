@@ -1,7 +1,6 @@
 from __future__ import division
 import sys
 import time
-from pprint import pprint
 import bs4
 from numpy import*
 from math import*
